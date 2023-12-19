@@ -1,16 +1,20 @@
+//Importamos el módulo de express para poder usarlo.
+const express = require("express");
 
-const http = require('http');
-
+//Asignamos un puerto para levantar el server.
 const PORT = 3000;
 
-const server = http.createServer( (req, res) => {
+//Inicializamos express y podemos acceder a todas las funcionanilades que nos proporciona.
+const app = express();
 
-    res.setHeader("Content-Type", "text/html; charset=utf-8")
-    res.end("<h1>Hola mundó</h1>")
+//Analizamos los archivos JSON.
+app.use(express.json());
 
-});
+//Importamos el controlador que hemos creado.
+const users = require('./controllers/usersControllers');
+app.use("/users", users);
 
-server.listen(PORT, () => {
-
-    console.log('Server running at http:localhost:${PORT}')
+//Creamos una ruta raíz, es decir, la url base del sitio web será http://localhost:3000.
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
