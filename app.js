@@ -1,20 +1,36 @@
-//Importamos el módulo de express para poder usarlo.
 const express = require("express");
+const mongoose = require("mongoose");
 
-//Asignamos un puerto para levantar el server.
 const PORT = 3000;
+const userRouter = require("./router/userRoutes");
 
-//Inicializamos express y podemos acceder a todas las funcionanilades que nos proporciona.
 const app = express();
 
-//Analizamos los archivos JSON.
 app.use(express.json());
 
-//Importamos el controlador que hemos creado.
-const users = require('./controllers/usersControllers');
-app.use("/users", users);
+//*Hacemos la conexión con la bbdd mongo.
+require("dotenv").config(); //?Esto nos permite coger la config que hay en el fichero .env
 
-//Creamos una ruta raíz, es decir, la url base del sitio web será http://localhost:3000.
+const mongo_URL = process.env.DATABASE_URL_DEV;
+mongoose.connect(mongo_URL);
+
+const db = mongoose.connection;
+
+db.on("error", (error) => {
+  console.log(`Error al conectarnos a MongoDB: ${error}`);
+});
+
+db.on("connected", () => {
+  console.log("Se ha establecido una conexión exitosa a MongoDB.");
+});
+
+db.on("disconnected", () => {
+  console.log("La conexión a MongoDB se cerró correctamente.");
+});
+
+//Importamos el controlador que hemos creado.
+app.use("/users", userRouter);
+
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`); //Creamos una ruta raíz, es decir, la url base del sitio web será http://localhost:3000.
 });

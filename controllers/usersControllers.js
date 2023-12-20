@@ -1,69 +1,57 @@
-const { parse } = require('dotenv');
+const { parse } = require("dotenv");
 
-const router = require('express').Router();
+const router = require("express").Router();
 
 let USERS = [
-    {id: 1, name: "Usuario 1", email: "usuario1@example.com"},
-    {id: 2, name: "Usuario 2", email: "usuario2@example.com"},
-    {id: 3, name: "Usuario 3", email: "usuario3@example.com"}
-]
+  { id: 1, name: "Usuario 1", email: "usuario1@example.com" },
+  { id: 2, name: "Usuario 2", email: "usuario2@example.com" },
+  { id: 3, name: "Usuario 3", email: "usuario3@example.com" },
+];
 
+const getUsers = (req, res) => {
+  res.send(USERS);
+};
 
-//Método get para obtener todas las colecciones.
-router.get('/', (req, res) => {
-    res.send(USERS);
-});
+const getUserbyId = (req, res) => {
+  const userId = parseInt(req.params.id);
+  const user = USERS.find((user) => user.id === userId);
+  res.send(user);
+};
 
-//Método get para obtener un único usuario.
-router.get('/:id', (req,res)=> {
-    //Convertimos id de la URL en un entero.
-    const userId = parseInt(req.params.id);
-    //Buscamos el usuario por su ID y lo enviamos como respuesta.
-    const user = USERS.find((user) => user.id === userId)
-    
-    res.send(user);
-});
+const patchById = (req, res) => {
+  const userId = parseInt(req.params.id);
+  const { name, email } = req.body;
+  const user = USERS.find((user) => user.id === userId);
 
-//Método update para obtener un único usuario.
-router.patch('/:id', (req,res)=> {
-     //Convertimos id de la URL en un entero.
-     const userId = parseInt(req.params.id);
-     const { name, email } = req.body;
-     //Buscamos el usuario por su ID y lo enviamos como respuesta.
-     const user = USERS.find((user) => user.id === userId)
-    
-     if (!user) {
-        res.send("El usuario no existe.");
-     } 
-     
-     if (name) {
-        user.name = req.body.name;
-     }
+  if (!user) {
+    res.send("El usuario no existe.");
+  }
 
-     if (email) {
-        user.email = req.body.email;
-     }
+  if (name) {
+    user.name = req.body.name;
+  }
 
-     res.send(user);
-});
+  if (email) {
+    user.email = req.body.email;
+  }
 
-//Método post para añadir un único usuario.
-router.post('/', (req,res)=> {
-    res.send(`Soy post ${JSON.stringify(req.body)}`);
-});
+  res.send(user);
+};
 
-//Método delete para borrar un único usuario.
-router.delete('/:id', (req,res)=> {
-    const userId = parseInt(req.params.id);
-    filteredUsers = USERS.filter((user) => user.id !== userId);
+const addUser = (req, res) => {
+  res.send(`Soy post ${JSON.stringify(req.body)}`);
+};
 
-    if (filteredUsers.length === USERS.length) {
-        res.send("El usuario no existe.");
-    } else {
-        USERS = filteredUsers;
-        res.send(filteredUsers);
-    }
-});
+const deleteUser = (req, res) => {
+  const userId = parseInt(req.params.id);
+  filteredUsers = USERS.filter((user) => user.id !== userId);
 
-//Para exportar el controlador.
-module.exports = router;
+  if (filteredUsers.length === USERS.length) {
+    res.send("El usuario no existe.");
+  } else {
+    USERS = filteredUsers;
+    res.send(filteredUsers);
+  }
+};
+
+module.exports = { getUsers, getUserbyId, patchById, addUser, deleteUser };
