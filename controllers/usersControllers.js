@@ -1,6 +1,5 @@
-const { parse } = require("dotenv");
-
-const router = require("express").Router();
+const userModel = require("../Models/userModels");
+const mongoose = require("mongoose");
 
 let USERS = [
   { id: 1, name: "Usuario 1", email: "usuario1@example.com" },
@@ -8,14 +7,16 @@ let USERS = [
   { id: 3, name: "Usuario 3", email: "usuario3@example.com" },
 ];
 
-const getUsers = (req, res) => {
-  res.send(USERS);
+const getUsers = async (req, res) => {
+  const data = await userModel.find();
+  console.log(data);
+  res.status(200).json({ status: "succeeded", data, error: null });
 };
 
-const getUserbyId = (req, res) => {
-  const userId = parseInt(req.params.id);
-  const user = USERS.find((user) => user.id === userId);
-  res.send(user);
+const getUserbyId = async (req, res) => {
+  const id = req.params.id;
+  const user = await userModel.findById(id);
+  res.status(200).json({ status: "succeeded", user, error: null });
 };
 
 const patchById = (req, res) => {
