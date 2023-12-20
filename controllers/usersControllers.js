@@ -1,58 +1,139 @@
 const userModel = require("../Models/userModels");
 const mongoose = require("mongoose");
 
-let USERS = [
-  { id: 1, name: "Usuario 1", email: "usuario1@example.com" },
-  { id: 2, name: "Usuario 2", email: "usuario2@example.com" },
-  { id: 3, name: "Usuario 3", email: "usuario3@example.com" },
-];
-
 const getUsers = async (req, res) => {
-  const data = await userModel.find();
-  console.log(data);
-  res.status(200).json({ status: "succeeded", data, error: null });
+  try {
+    const data = await userModel.find();
+    res.status(200).json({ status: "succeeded", data, error: null });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ status: "failed", data: null, error: error.message });
+  }
 };
 
 const getUserbyId = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await userModel.findById(id);
+    res.status(200).json({ status: "succeeded", user, error: null });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ status: "failed", data: null, error: error.message });
+  }
+};
+
+const patchById = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { name, email } = req.body;
+    const user = await userModel.findById(id);
+
+    if (!user) {
+      return res.status(404).send("El usuario no existe");
+    }
+
+    if (name) {
+      user.name = req.body.name;
+    }
+
+    if (email) {
+      user.email = req.body.email;
+    }
+
+    await user.save(); //? Guarda los cambios en la bd
+    res.status(200).json({ status: "succeeded", user, error: null });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ status: "failed", data: null, error: error.message });
+  }
+};
+
+const addUser = async (req, res) => {
+  try {
+    const { name, email } = req.body;
+
+    const newUser = new userModel({
+      name,
+      email,
+    });
+
+    await newUser.save();
+    res.status(201).json({ status: "succeeded", newUser, error: null });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ status: "failed", data: null, error: error.message });
+  }
+};
+
+const deleteUser = async (req, res) => {
   const id = req.params.id;
-  const user = await userModel.findById(id);
-  res.status(200).json({ status: "succeeded", user, error: null });
-};
 
-const patchById = (req, res) => {
-  const userId = parseInt(req.params.id);
-  const { name, email } = req.body;
-  const user = USERS.find((user) => user.id === userId);
-
-  if (!user) {
-    res.send("El usuario no existe.");
+  if (!id) {
+    return res
+      .status(400)
+      .json({ message: "No se proporcionó el ID del usuario." });
   }
 
-  if (name) {
-    user.name = req.body.name;
-  }
+  try {
+    const isValidObjectId = mongoose.Types.ObjectId.isValid(id);
 
-  if (email) {
-    user.email = req.body.email;
-  }
+    if (!isValidObjectId) {
+      throw new Error("ID de usuario no válido proporcionado.");
+    }
 
-  res.send(user);
-};
+    const objectId = new mongoose.Types.ObjectId(id);
 
-const addUser = (req, res) => {
-  res.send(`Soy post ${JSON.stringify(req.body)}`);
-};
+    const deletedUser = await userModel.findOneAndDelete({ _id: objectId });
 
-const deleteUser = (req, res) => {
-  const userId = parseInt(req.params.id);
-  filteredUsers = USERS.filter((user) => user.id !== userId);
+    if (!deletedUser) {
+      return res.status(404).json({ message: "No se encontró el usuario." });
+    }
 
-  if (filteredUsers.length === USERS.length) {
-    res.send("El usuario no existe.");
-  } else {
-    USERS = filteredUsers;
-    res.send(filteredUsers);
+    return res
+      .status(200)
+      .json({ message: `Usuario con id: { ${id} } eliminado con éxito.` });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ status: "failed", data: null, error: error.message });
   }
 };
 
-module.exports = { getUsers, getUserbyId, patchById, addUser, deleteUser };
+const countUsers = async (req, res) => {
+  try {
+    const usersCount = await userModel.countDocuments();
+    res.status(200).send({ total: usersCount });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ status: "failed", data: null, error: error.message });
+  }
+};
+
+const getUserByEmail = async (req, res) => {
+  try {
+    const users = userModel.find(
+      { email: { $regex: /@/ } },
+      { name: 1, _id: 0 }
+    );
+    res.status(200).json({ status: "succeeded", users, error: null });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ status: "failed", data: null, error: error.message });
+  }
+};
+
+module.exports = {
+  getUsers,
+  getUserbyId,
+  patchById,
+  addUser,
+  deleteUser,
+  countUsers,
+  getUserByEmail,
+};

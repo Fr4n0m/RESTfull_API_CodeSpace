@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 
 const PORT = 3000;
 const userRouter = require("./router/userRoutes");
+const productsRouter = require("./router/productRoutes");
 
 const app = express();
 
@@ -30,6 +31,7 @@ db.on("disconnected", () => {
 
 //Importamos el controlador que hemos creado.
 app.use("/users", userRouter);
+app.use("/products", productsRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`); //Creamos una ruta raíz, es decir, la url base del sitio web será http://localhost:3000.

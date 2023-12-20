@@ -1,0 +1,23 @@
+[33mcommit 0f6a0442c4754c9a40bf4f908fe5de7f9f5853cb[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m
+Author: Fr4n0m <fran11799@outlook.com>
+Date:   Wed Dec 20 12:58:57 2023 +0100
+
+    add model
+
+[33mcommit bf9b9531a655f460d97f9711c8ca1759966c3d96[m
+Author: Fr4n0m <fran11799@outlook.com>
+Date:   Wed Dec 20 10:54:15 2023 +0100
+
+    mongodb connection
+
+[33mcommit a4bb269bd13557eeb51c70850b9c1ff0ceab2e47[m
+Author: Fr4n0m <fran11799@outlook.com>
+Date:   Tue Dec 19 11:40:58 2023 +0100
+
+    add controllerUser
+
+[33mcommit c770b6d0f21172fce67855070722e16fac7b7aa1[m
+Author: Fr4n0m <fran11799@outlook.com>
+Date:   Mon Dec 18 18:08:26 2023 +0100
+
+    add app.js
