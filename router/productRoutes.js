@@ -6,7 +6,7 @@ const {
   deleteProduct,
   getPriceAvg,
   getSizesByProductId,
-  deleteProductItem,
+  deleteColorByProductId,
 } = require("../controllers/productsControllers");
 
 const router = require("express").Router();
@@ -19,6 +19,6 @@ router.get("/:id", getProductById);
 router.patch("/:id", patchById);
 router.post("/", addProduct);
 router.delete("/:id", deleteProduct);
-router.get("/:id", deleteProductItem);
+router.delete("/:id/color/:color", deleteColorByProductId);
 
 module.exports = router;

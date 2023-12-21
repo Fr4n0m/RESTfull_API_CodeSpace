@@ -13,19 +13,29 @@ const getProducts = async (req, res) => {
 };
 
 const getPriceAvg = async (req, res) => {
+  let query = {};
+  if (req.query.category) {
+    query["category"] = req.query.category;
+  }
   try {
-    const averagePrice = await productModel.aggregate([
-      {
-        $group: { _id: null, avgPrice: { $avg: "$price" } },
-      },
-      {
-        $project: { _id: 0, averagePrice: "$avgPrice" },
-      },
+    const priceAvgData = await productModel.aggregate([
+      { $match: query },
+      { $group: { _id: "$category", avgPrice: { $avg: "$price" } } },
     ]);
-  } catch (error) {
-    res
-      .status(500)
-      .json({ status: "failed", data: null, error: error.message });
+    res.status(200).json({
+      status: "succeeded",
+      message: `Average Price of Products in ${query._id} Category`,
+      data: priceAvgData[0] ? priceAvgData[0].avgPrice : null,
+      error: null,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(400).json({
+      status: "Failed",
+      message: `Error occured while getting average price for category - ${query._id}`,
+      data: null,
+      error: err,
+    });
   }
 };
 
@@ -163,21 +173,37 @@ const getSizesByProductId = async (req, res) => {
   }
 };
 
-const deleteProductItem = async (req, res) => {
+const deleteColorByProductId = async (req, res) => {
   try {
-    const { id, itemIndex } = req.body;
-    let product = await productModel.findById(id);
+    const { id, color } = req.params;
+    const product = await productModel.findById(id);
+
     if (!product) {
-      return res.status(404).json({ message: "El producto no existe" });
+      return res.status(404).json({
+        message: "El producto no tiene colores asociados.",
+      });
     }
-    product.items.splice(itemIndex, 1);
+
+    const colors = product.colors;
+    const indexOfColor = product.colors.indexOf(color);
+
+    if (indexOfColor === -1) {
+      return res.status(404).json({
+        message: "El color no existe en este producto.",
+      });
+    }
+
+    product.colors.slice(indexOfColor, 1);
     await product.save();
+
     res.status(200).json({
-      message: "Elemento eliminado correctamente de los items del producto",
+      message: "Se ha eliminado correctamente el color del producto.",
+      data: product.colors,
     });
   } catch (error) {
-    console.log("ERROR EN DELETE PRODUCT ITEM CONTROLLER: ", error);
-    res.status(500).json({ message: "Algo salió mal" });
+    res.status(400).json({
+      message: "Ocurrió un error al intentar eliminar el color del producto.",
+    });
   }
 };
 
@@ -189,5 +215,5 @@ module.exports = {
   deleteProduct,
   getPriceAvg,
   getSizesByProductId,
-  deleteProductItem,
+  deleteColorByProductId,
 };
