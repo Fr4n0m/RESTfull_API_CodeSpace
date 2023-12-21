@@ -1,5 +1,6 @@
 const userModel = require("../Models/userModels");
 const mongoose = require("mongoose");
+const emailService = require("../services/emailServices");
 
 const getUsers = async (req, res) => {
   try {
@@ -61,6 +62,9 @@ const addUser = async (req, res) => {
     });
 
     await newUser.save();
+    const subject = `Gracias por registrarte ${name}`;
+    const html = `<h1>Disfruta de nuestra plataforma!</h1>`;
+    await emailService.sendEmail(email, subject, html);
     res.status(201).json({ status: "succeeded", newUser, error: null });
   } catch (error) {
     res

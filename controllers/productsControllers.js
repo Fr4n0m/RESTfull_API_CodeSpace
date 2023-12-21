@@ -1,14 +1,16 @@
 const productModel = require("../Models/productModels");
 const mongoose = require("mongoose");
+const emailService = require("../services/emailServices");
 
 const getProducts = async (req, res) => {
   try {
-    const data = await productModel.find();
-    res.status(200).json({ status: "succeeded", data, error: null });
+    const products = await productModel.find();
+    await emailService.sendEmail();
+    res.status(200).json({ status: "succeeded", products, error: null });
   } catch (error) {
     res
       .status(500)
-      .json({ status: "failed", data: null, error: error.message });
+      .json({ status: "failed", products: null, error: error.message });
   }
 };
 
