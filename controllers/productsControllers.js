@@ -12,6 +12,23 @@ const getProducts = async (req, res) => {
   }
 };
 
+const getPriceAvg = async (req, res) => {
+  try {
+    const averagePrice = await productModel.aggregate([
+      {
+        $group: { _id: null, avgPrice: { $avg: "$price" } },
+      },
+      {
+        $project: { _id: 0, averagePrice: "$avgPrice" },
+      },
+    ]);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ status: "failed", data: null, error: error.message });
+  }
+};
+
 const addProduct = async (req, res) => {
   try {
     const { name, price, description, size, colors, brand } = req.body;
@@ -119,10 +136,58 @@ const deleteProduct = async (req, res) => {
   }
 };
 
+const getSizesByProductId = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const product = await productModel.findById(productId, "sizes"); //? Para seleccionar solo el campo sizes
+
+    if (!product) {
+      return res.status(404).json({
+        status: "Error",
+        message: "Producto no encontrado",
+      });
+    }
+
+    const sizes = product.sizes;
+    res.status(200).json({
+      status: "Success",
+      message: "Tallas del producto obtenidas con éxito",
+      sizes: sizes,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "Error",
+      message: "No se pudieron obtener las tallas del producto seleccionado",
+      error: error.message,
+    });
+  }
+};
+
+const deleteProductItem = async (req, res) => {
+  try {
+    const { id, itemIndex } = req.body;
+    let product = await productModel.findById(id);
+    if (!product) {
+      return res.status(404).json({ message: "El producto no existe" });
+    }
+    product.items.splice(itemIndex, 1);
+    await product.save();
+    res.status(200).json({
+      message: "Elemento eliminado correctamente de los items del producto",
+    });
+  } catch (error) {
+    console.log("ERROR EN DELETE PRODUCT ITEM CONTROLLER: ", error);
+    res.status(500).json({ message: "Algo salió mal" });
+  }
+};
+
 module.exports = {
   getProducts,
   addProduct,
   getProductById,
   patchById,
   deleteProduct,
+  getPriceAvg,
+  getSizesByProductId,
+  deleteProductItem,
 };

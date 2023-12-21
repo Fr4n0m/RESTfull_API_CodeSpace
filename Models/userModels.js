@@ -9,6 +9,7 @@ const userSchema = new Schema({
   email: {
     type: String,
     required: true,
+    match: [/^\S+@\S+\.\S+$/, "Correo incorrecto"], //! regex para la validacion del correo.
   },
 });
 
